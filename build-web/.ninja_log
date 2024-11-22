@@ -1,0 +1,20 @@
+# ninja log v6
+90	2482	7499241037463813	imgui/CMakeFiles/imgui.dir/imgui_widgets.cpp.o	bb11139a16cbd175
+71	2347	7499241037275403	imgui/CMakeFiles/imgui.dir/imgui_draw.cpp.o	a8f610f2d1dc1fad
+20	2277	7499247910978320	PlaceholderEngineWGPU/CMakeFiles/PlaceholderEngineWGPU.dir/PlaceholderEngineWGPU.cpp.o	3b08227dadc2558d
+17	751	7499241036729374	glfw3webgpu/CMakeFiles/glfw3webgpu.dir/glfw3webgpu.c.o	1fdfe2721052cf58
+136	7322	7499241037921667	PlaceholderEngineWGPU/CMakeFiles/PlaceholderEngineWGPU.dir/ResourceManager.cpp.o	a64143c88ea79c17
+80	2035	7499241037368761	imgui/CMakeFiles/imgui.dir/imgui_tables.cpp.o	eb3a80e5baa3a791
+48	1076	7499241037044531	imgui/CMakeFiles/imgui.dir/backends/imgui_impl_glfw.cpp.o	6206c5a8518a3d60
+25	1052	7499241036814479	imgui/CMakeFiles/imgui.dir/backends/imgui_impl_wgpu.cpp.o	2ac3543e0d49a307
+752	1292	7499241044089230	glfw3webgpu/libglfw3webgpu.a	2488722b49eca88d
+63	2672	7499241037195384	imgui/CMakeFiles/imgui.dir/imgui.cpp.o	3db6d9f2f549c295
+56	4524	7499241037124549	imgui/CMakeFiles/imgui.dir/misc/cpp/imgui_stdlib.cpp.o	f739e8092eab7a84
+4528	4874	7499241081844753	imgui/libimgui.a	d774a84d243d55ad
+112	5612	7499241037676532	PlaceholderEngineWGPU/CMakeFiles/PlaceholderEngineWGPU.dir/webgpu-utils.cpp.o	d270156b19b1b348
+149	7962	7499241038051701	PlaceholderEngineWGPU/CMakeFiles/PlaceholderEngineWGPU.dir/implementations.cpp.o	987edefd6a72451
+24	2944	7499402132291457	PlaceholderEngineWGPU/CMakeFiles/PlaceholderEngineWGPU.dir/Application.cpp.o	3eb2fda46deb2c0d
+2945	5836	7499402161509660	PlaceholderEngineWGPU/PlaceholderEngineWGPU.html	449172bd27858d2f
+8	1138	7499403472569102	build.ninja	cd35095eef2bb6a9
+15	1190	7499403472569102	build.ninja	cd35095eef2bb6a9
+23	3428	7499403473080895	PlaceholderEngineWGPU/PlaceholderEngineWGPU.html	dad809476175e406

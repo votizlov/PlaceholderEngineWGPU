@@ -1,0 +1,15 @@
+E:/git_projects/PlaceholderEngineWGPU/build-web/CMakeFiles/edit_cache.dir
+E:/git_projects/PlaceholderEngineWGPU/build-web/CMakeFiles/rebuild_cache.dir
+E:/git_projects/PlaceholderEngineWGPU/build-web/webgpu/CMakeFiles/edit_cache.dir
+E:/git_projects/PlaceholderEngineWGPU/build-web/webgpu/CMakeFiles/rebuild_cache.dir
+E:/git_projects/PlaceholderEngineWGPU/build-web/glfw3webgpu/CMakeFiles/glfw3webgpu.dir
+E:/git_projects/PlaceholderEngineWGPU/build-web/glfw3webgpu/CMakeFiles/edit_cache.dir
+E:/git_projects/PlaceholderEngineWGPU/build-web/glfw3webgpu/CMakeFiles/rebuild_cache.dir
+E:/git_projects/PlaceholderEngineWGPU/build-web/imgui/CMakeFiles/imgui.dir
+E:/git_projects/PlaceholderEngineWGPU/build-web/imgui/CMakeFiles/edit_cache.dir
+E:/git_projects/PlaceholderEngineWGPU/build-web/imgui/CMakeFiles/rebuild_cache.dir
+E:/git_projects/PlaceholderEngineWGPU/build-web/glm/CMakeFiles/edit_cache.dir
+E:/git_projects/PlaceholderEngineWGPU/build-web/glm/CMakeFiles/rebuild_cache.dir
+E:/git_projects/PlaceholderEngineWGPU/build-web/PlaceholderEngineWGPU/CMakeFiles/PlaceholderEngineWGPU.dir
+E:/git_projects/PlaceholderEngineWGPU/build-web/PlaceholderEngineWGPU/CMakeFiles/edit_cache.dir
+E:/git_projects/PlaceholderEngineWGPU/build-web/PlaceholderEngineWGPU/CMakeFiles/rebuild_cache.dir
