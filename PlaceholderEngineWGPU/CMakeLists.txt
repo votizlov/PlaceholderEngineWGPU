@@ -9,7 +9,7 @@ add_executable (PlaceholderEngineWGPU "PlaceholderEngineWGPU.cpp" "PlaceholderEn
 	Application.cpp
 	ResourceManager.h
 	ResourceManager.cpp
-	implementations.cpp)
+	implementations.cpp "BaseComponent.h" "MeshRendererComponent.h" "BaseSystem.h" "cgltf.h" "MeshRendererSystem.h")
 target_link_libraries(PlaceholderEngineWGPU PRIVATE glfw webgpu glfw3webgpu imgui glm)
 if (EMSCRIPTEN)
 target_link_options(PlaceholderEngineWGPU PRIVATE

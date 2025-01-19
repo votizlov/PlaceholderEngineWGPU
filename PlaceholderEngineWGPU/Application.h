@@ -3,6 +3,9 @@
 #include <glm/glm.hpp>
 
 #include <array>
+//#include "BaseSystem.h"
+#include "MeshRendererSystem.h"
+#include "cgltf.h"
 
 // Forward declare
 struct GLFWwindow;
@@ -46,6 +49,9 @@ private:
 	void terminateTexture();
 
 	bool initGeometry();
+	void FillVertexData(cgltf_primitive& prim, std::vector<ResourceManager::VertexAttributes>& vertices);
+	void loadFourareenTest();
+	bool loadGltfScene(const char* path, wgpu::Device device, wgpu::Queue queue, MeshRenderSystem& meshRenderSystem);
 	void terminateGeometry();
 
 	bool initUniforms();
@@ -171,4 +177,8 @@ private:
 
 	CameraState m_cameraState;
 	DragState m_drag;
+
+	std::vector<BaseSystem*> registeredSystems;
+	MeshRenderSystem* m_meshRenderSystem;
+
 };

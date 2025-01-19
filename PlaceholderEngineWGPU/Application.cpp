@@ -3,6 +3,8 @@
 
 #include <glfw3webgpu.h>
 #include <GLFW/glfw3.h>
+#define CGLTF_IMPLEMENTATION
+#include "cgltf.h"
 
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE
 #define GLM_FORCE_LEFT_HANDED
@@ -121,6 +123,9 @@ void Application::onFrame() {
 	renderPass.setBindGroup(0, m_bindGroup, 0, nullptr);
 
 	renderPass.draw(m_vertexCount, 1, 0, 0);
+	m_meshRenderSystem->bindGroup = m_bindGroup;
+	m_meshRenderSystem->pipeline = m_pipeline;
+	m_meshRenderSystem->RenderAll(renderPass);
 
 	// We add the GUI drawing commands to the render pass
 	updateGui(renderPass);
@@ -560,6 +565,8 @@ void Application::terminateTexture() {
 
 
 bool Application::initGeometry() {
+
+	m_meshRenderSystem = new MeshRenderSystem(m_pipeline, m_bindGroup);
 	// Load mesh data from OBJ file
 	std::vector<VertexAttributes> vertexData;
 	bool success = ResourceManager::loadGeometryFromObj(RESOURCE_DIR "/fourareen.obj", vertexData);
@@ -578,7 +585,152 @@ bool Application::initGeometry() {
 
 	m_vertexCount = static_cast<int>(vertexData.size());
 
+	std::cout << "Loading gltf" << std::endl;
+
+	loadGltfScene(RESOURCE_DIR "/test.gltf",m_device,m_queue, *m_meshRenderSystem);
+
 	return m_vertexBuffer != nullptr;
+}
+
+void Application::FillVertexData(cgltf_primitive& prim,
+                           std::vector<ResourceManager::VertexAttributes>& vertices)
+{
+    // Optional: handle index accessor
+    std::vector<uint32_t> indices;
+    if (prim.indices) {
+        cgltf_accessor* idxAccessor = prim.indices;
+        indices.resize(idxAccessor->count);
+        for (size_t i = 0; i < idxAccessor->count; ++i) {
+            // cgltf_accessor_read_index can read a single index as 32-bit
+            uint32_t indexVal = 0;
+            auto size = cgltf_accessor_read_index(idxAccessor, i);
+            indices[i] = size;
+        }
+    }
+
+    // Accessors for position/normal/uv
+    cgltf_accessor* posAccessor = nullptr;
+    cgltf_accessor* normAccessor = nullptr;
+    cgltf_accessor* uvAccessor  = nullptr;
+
+    // Identify which accessor is which
+    for (size_t a = 0; a < prim.attributes_count; a++) {
+        const cgltf_attribute& attr = prim.attributes[a];
+        if (attr.type == cgltf_attribute_type_position) {
+            posAccessor = attr.data;
+        } else if (attr.type == cgltf_attribute_type_normal) {
+            normAccessor = attr.data;
+        } else if (attr.type == cgltf_attribute_type_texcoord) {
+            uvAccessor = attr.data;
+        }
+    }
+
+    // If there's no index accessor, the vertex count is posAccessor->count
+    // If there is an index accessor, you typically size your vertices
+    // by the # of indices (or read them uniquely).
+    size_t vertexCount = prim.indices ? indices.size()
+                                      : (posAccessor ? posAccessor->count : 0);
+
+    vertices.resize(vertexCount);
+
+    // For each vertex (or index), read from accessors
+    for (size_t i = 0; i < vertexCount; i++) {
+        // If indexed, we read from the index array
+        uint32_t realIndex = prim.indices ? indices[i] : (uint32_t)i;
+
+        // Position
+        float p[3] = {0.f, 0.f, 0.f};
+        if (posAccessor) {
+            cgltf_accessor_read_float(posAccessor, realIndex, p, 3);
+        }
+
+        // Normal
+        float n[3] = {0.f, 0.f, 1.f};
+        if (normAccessor) {
+            cgltf_accessor_read_float(normAccessor, realIndex, n, 3);
+        }
+
+        // UV
+        float t[2] = {0.f, 0.f};
+        if (uvAccessor) {
+            cgltf_accessor_read_float(uvAccessor, realIndex, t, 2);
+        }
+
+        // Store in your vertex format
+        vertices[i].position = glm::vec3(p[0], p[1], p[2]);
+        vertices[i].normal   = glm::vec3(n[0], n[1], n[2]);
+        vertices[i].uv       = glm::vec2(t[0], t[1]);
+        vertices[i].color    = glm::vec3(1.0f); // or whatever default
+    }
+}
+
+
+void Application::loadFourareenTest() {
+	MeshRendererComponent* mrc = new MeshRendererComponent();
+	std::vector<ResourceManager::VertexAttributes> vertices;
+	if (ResourceManager::loadGeometryFromObj("fourareen.obj", vertices)) {
+		wgpu::BufferDescriptor bd;
+		bd.size = vertices.size() * sizeof(ResourceManager::VertexAttributes);
+		bd.usage = wgpu::BufferUsage::CopyDst | wgpu::BufferUsage::Vertex;
+		bd.mappedAtCreation = false;
+		wgpu::Buffer vb = m_device.createBuffer(bd);
+		m_queue.writeBuffer(vb, 0, vertices.data(), bd.size);
+
+		MeshData meshData;
+		meshData.vertexBuffer = vb;
+		meshData.vertexCount = vertices.size();
+		mrc->meshes.push_back(meshData);
+	}
+	m_meshRenderSystem -> meshRenderers.push_back(mrc);
+}
+
+bool Application::loadGltfScene(const char* path, wgpu::Device device, wgpu::Queue queue,
+	MeshRenderSystem& meshRenderSystem)
+{
+	cgltf_options options = {};
+	cgltf_data* data = nullptr;
+	cgltf_result result = cgltf_parse_file(&options, path, &data);
+	if (result != cgltf_result_success) return false;
+
+	result = cgltf_load_buffers(&options, data, path);
+	if (result != cgltf_result_success) {
+		cgltf_free(data);
+		return false;
+	}
+	// Optionally validate glTF data
+	// cgltf_validate(data);
+
+	// For each node that has a mesh, create a MeshRendererComponent:
+	for (size_t i = 0; i < data->nodes_count; i++) {
+		cgltf_node* node = &data->nodes[i];
+		if (!node->mesh) continue;
+		std::cout << "FOUND MESH: " << node->name << std::endl;
+		MeshRendererComponent* mrc = new MeshRendererComponent();
+
+		for (size_t p = 0; p < node->mesh->primitives_count; p++) {
+			cgltf_primitive& prim = node->mesh->primitives[p];
+			// Gather vertex data from prim.attributes
+			std::vector<ResourceManager::VertexAttributes> vertices;
+			// (Read each accessor buffer, for example positions, normals, etc.)
+			FillVertexData(prim, vertices);
+			// Create the buffer
+			wgpu::BufferDescriptor bd;
+			bd.size = vertices.size() * sizeof(ResourceManager::VertexAttributes);
+			bd.usage = wgpu::BufferUsage::CopyDst | wgpu::BufferUsage::Vertex;
+			bd.mappedAtCreation = false;
+			wgpu::Buffer vb = device.createBuffer(bd);
+			queue.writeBuffer(vb, 0, vertices.data(), bd.size);
+
+			MeshData meshData;
+			meshData.vertexBuffer = vb;
+			meshData.vertexCount = vertices.size();
+			std::cout << "mesh vert count " << meshData.vertexCount << std::endl;
+			mrc->meshes.push_back(meshData);
+		}
+		m_meshRenderSystem->meshRenderers.push_back(mrc);
+	}
+	cgltf_free(data);
+	return true;
 }
 
 void Application::terminateGeometry() {
@@ -804,6 +956,8 @@ void Application::updateGui(RenderPassEncoder renderPass) {
 		changed = ImGui::DragDirection("Direction #0", m_lightingUniforms.directions[0]) || changed;
 		changed = ImGui::ColorEdit3("Color #1", glm::value_ptr(m_lightingUniforms.colors[1])) || changed;
 		changed = ImGui::DragDirection("Direction #1", m_lightingUniforms.directions[1]) || changed;
+		ImGui::End();
+		ImGui::Begin("broha");
 		ImGui::End();
 		m_lightingUniformsChanged = changed;
 	}
